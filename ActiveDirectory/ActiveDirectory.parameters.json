@@ -1,0 +1,33 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dcType": {
+      "value": "FirstDC"
+    },
+    "adminUsername": {
+      "value": "azadmin"
+    },
+    "adminPassword": {
+      "value": "MyNotSoSecretPassword?666"
+    },
+    "vmPrefix": {
+      "value": "iac-"
+    },
+    "existingVirtualNetworkName": {
+      "value": "VNET-ADFS-1-Test"
+    },
+    "existingVirtualNetworkResourceGroup": {
+      "value": "IaC-ADFS-Test"
+    },
+    "subnetName": {
+      "value": "LAN"
+    },
+    "dscRegistrationKey": {
+      "value": "MyCoolRegistrationKey"
+    },
+    "dscRegistrationUrl": {
+      "value": "https://we-agentservice-prod-1.azure-automation.net/accounts/automationaccountid"
+    }
+  }
+}
