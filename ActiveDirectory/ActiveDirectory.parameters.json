@@ -6,28 +6,28 @@
       "value": "FirstDC"
     },
     "adminUsername": {
-      "value": "azadmin"
+      "value": "#{activedirectoryAdmin}#"
     },
     "adminPassword": {
-      "value": "MyNotSoSecretPassword?666"
+      "value": "#{activedirectoryPassword}#"
     },
     "vmPrefix": {
-      "value": "iac-"
+      "value": "#{vmprefix}#"
     },
     "existingVirtualNetworkName": {
-      "value": "VNET-ADFS-1-Test"
+      "value": "#{vnetName}#"
     },
     "existingVirtualNetworkResourceGroup": {
-      "value": "IaC-ADFS-Test"
+      "value": "#{resourcegroup}#"
     },
     "subnetName": {
       "value": "LAN"
     },
     "dscRegistrationKey": {
-      "value": "MyCoolRegistrationKey"
+      "value": "automationDscRegistrationKey"
     },
     "dscRegistrationUrl": {
-      "value": "https://we-agentservice-prod-1.azure-automation.net/accounts/automationaccountid"
+      "value": "automationDscRegistrationUrl"
     }
   }
 }

@@ -6,16 +6,16 @@
       "value": "#{automationaccount}#"
     },
     "adAdminUsername": {
-      "value": "AdminUsername"
+      "value": "#{automationADadmin}#"
     },
     "adAdminPassword": {
-      "value": "MyNotSoSecretPasswordPassword?666"
+      "value": "#{automationADpassword}#"
     },
     "adDomainName": {
-      "value": "kvaes.local"
+      "value": "#{automationADdomain}#"
     },
     "adDomainNetbiosName": {
-      "value": "kvaes"
+      "value": "#{automatioADnetbios}#"
     }
   }
 }
