@@ -80,11 +80,11 @@
       "vnetSubnet": "[parameters('subnetName')]",
       "vnetID": "[resourceId(variables('vnetRG'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
       "subnetRef": "[concat(variables('vnetID'),'/subnets/', variables('vnetSubnet'))]", 
-      "dscLinkedTemplateUri":  "https://raw.githubusercontent.com/kvaes/TasmanianTraders-IaC-AzureAutomationDSC/master/RegisterVirtualMachine/azuredeploy.json",
+      "dscLinkedTemplateUri":  "https://raw.githubusercontent.com/tvuylsteke/IaC-ADFS/master/Automation/RegisterVirtualMachine/RegisterVM.json",
       "dscRegistrationKey": "[parameters('dscRegistrationKey')]",
       "dscRegistrationUrl": "[parameters('dscRegistrationUrl')]",
       "dscNodeConfigurationName": "[concat('DscConfDomainController.',parameters('dcType'))]",
-      "updateip_templateUri": "https://raw.githubusercontent.com/kvaes/TasmanianTraders-IaC-ActiveDirectory/master/update-nic.json"
+      "updateip_templateUri": "https://raw.githubusercontent.com/tvuylsteke/IaC-ADFS/master/ActiveDirectory/update-nic.json"
       },
     "resources": [
       {
