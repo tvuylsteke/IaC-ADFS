@@ -15,7 +15,7 @@
       "value": "#{automationADdomain}#"
     },
     "adDomainNetbiosName": {
-      "value": "#{automatioADnetbios}#"
+      "value": "#{automationADnetbios}#"
     }
   }
 }
