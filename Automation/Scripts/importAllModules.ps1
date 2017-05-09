@@ -11,7 +11,7 @@ $cfgPath = "$PSScriptRoot/../Modules"
 
 Get-ChildItem -Path $cfgPath | Where-Object { $_.Name -like "*Modules*" } | Where-Object { $_.Name -like "*.ps1" } | ForEach-Object {
     Write-Information -MessageData "Processing $_.Name"
-    $moduleConfigFile = "../Modules/$($_.Name)"
+    $moduleConfigFile = "$PSScriptRoot/../Modules/$($_.Name)"
     $moduleConfigFileFullContent = (Get-Content $moduleConfigFile | Out-String)
     Invoke-Expression $moduleConfigFileFullContent
     foreach ($module in $modules.GetEnumerator()) {
