@@ -74,7 +74,8 @@
       "storageAccountType": "Standard_LRS",      
       "apiVersion": "2015-06-15",
       "apiVersionManagedDisks": "2016-04-30-preview",
-      "nicName": "[concat('nic-',variables('vmFullName'))]",      
+      "nicName": "[concat('nic-',variables('vmFullName'))]",
+      "pipName": "[concat('pip-',variables('vmFullName'))]", 
       "vnetName": "[parameters('existingVirtualNetworkName')]",
       "vnetRG": "[parameters('existingVirtualNetworkResourceGroup')]",
       "vnetSubnet": "[parameters('subnetName')]",
@@ -103,16 +104,32 @@
       }
     },
     {
+  "apiVersion": "2015-06-15",
+  "type": "Microsoft.Network/publicIPAddresses",
+  "name": "[variables('pipName')]",
+  "location": "[variables('location')]",
+  "properties": {
+    "publicIPAllocationMethod": "Dynamic"
+  },
+    },
+    {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
       "location": "[resourceGroup().location]",
+     "dependsOn": [
+      "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
+      "[concat('Microsoft.Network/virtualNetworks/', parameters('existingVirtualNetworkName'))]"
+    ],
       "properties": {
         "ipConfigurations": [
           {
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pipName'))]"
+                  },
               "subnet": {
                 "id": "[variables('subnetRef')]"
               }
