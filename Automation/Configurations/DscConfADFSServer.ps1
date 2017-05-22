@@ -16,7 +16,6 @@ Configuration DscConfADFSServer
 		{
 			Domain = $dscDomainName 
 			Credential = $dscDomainAdmin
-			DependsOn = "[xDisk]ADDataDisk"
 		}
     }
 }

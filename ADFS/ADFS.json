@@ -73,7 +73,7 @@
       "dscRegistrationKey": "[parameters('dscRegistrationKey')]",
       "dscRegistrationUrl": "[parameters('dscRegistrationUrl')]",
       "dscNodeConfigurationName": "[concat('DscConfADFSServer.','ADFS')]",   
-      "adfsLoadBalancerName": "[concat(parameters('resPrefix'),'ADFSLB')]",
+      "adfsLoadBalancerName": "[concat(parameters('resPrefix'),'ADFSLB')]"
       },
     "resources": [
     {
@@ -83,7 +83,7 @@
         "location": "[resourceGroup().location]",
         "properties": {
             "publicIPAllocationMethod": "Dynamic"
-        },
+        }
     },
     {
       "apiVersion": "2015-06-15",

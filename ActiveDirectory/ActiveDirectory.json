@@ -107,10 +107,10 @@
   "apiVersion": "2015-06-15",
   "type": "Microsoft.Network/publicIPAddresses",
   "name": "[variables('pipName')]",
-  "location": "[variables('location')]",
-  "properties": {
-    "publicIPAllocationMethod": "Dynamic"
-  },
+  "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
     },
     {
       "apiVersion": "[variables('apiVersion')]",
