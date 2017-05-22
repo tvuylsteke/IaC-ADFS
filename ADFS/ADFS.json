@@ -1,0 +1,243 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    "resPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The prefix that will be used for the vm name"
+      }
+    },
+    "existingVirtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing VNET"
+      }
+    },
+    "existingVirtualNetworkResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing VNET resource group"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the subnet in the virtual network you want to use"
+      }
+      },
+    "dscRegistrationKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Registration key to use to onboard to the Azure Automation DSC pull/reporting server"
+      }
+    },
+       "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "dscRegistrationUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Registration url of the Azure Automation DSC pull/reporting server"
+      }
+    }
+}, 
+    "variables": {
+      "vmName": "ADFS01",
+      "vmFullName": "[concat(parameters('resPrefix'),variables('vmName'))]",
+      "vmSize": "Standard_A2_v2",
+      "imagePublisher": "MicrosoftWindowsServer",
+      "imageOffer": "WindowsServer",
+      "windowsOSVersion": "2016-Datacenter",
+      "OSDiskName": "[concat('disk-',variables('vmFullName'),'-os')]",      
+      "storageAccountType": "Standard_LRS",      
+      "apiVersion": "2015-06-15",
+      "apiVersionManagedDisks": "2016-04-30-preview",
+      "nicName": "[concat('nic-',variables('vmFullName'))]",
+      "pipName": "[concat('pip-',variables('vmFullName'))]", 
+      "vnetName": "[parameters('existingVirtualNetworkName')]",
+      "vnetRG": "[parameters('existingVirtualNetworkResourceGroup')]",
+      "vnetSubnet": "[parameters('subnetName')]",
+      "vnetID": "[resourceId(variables('vnetRG'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+      "subnetRef": "[concat(variables('vnetID'),'/subnets/', variables('vnetSubnet'))]", 
+      "dscLinkedTemplateUri":  "https://raw.githubusercontent.com/tvuylsteke/IaC-ADFS/master/Automation/RegisterVirtualMachine/RegisterVM.json",
+      "dscRegistrationKey": "[parameters('dscRegistrationKey')]",
+      "dscRegistrationUrl": "[parameters('dscRegistrationUrl')]",
+      "dscNodeConfigurationName": "[concat('DscConfADFSServer.','ADFS')]",   
+      "adfsLoadBalancerName": "[concat(parameters('resPrefix'),'ADFSLB')]",
+      },
+    "resources": [
+    {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables('pipName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "publicIPAllocationMethod": "Dynamic"
+        },
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('adfsLoadBalancerName')]",
+      "location": "[resourceGroup().location]",
+      "tags": { "displayName": "adfsLB" },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "ADFSLBFE",
+            "properties": {
+              "subnet": {
+
+                  "id": "[variables('subnetRef')]"
+              },              
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "ADFSLBBE"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "ADFSLBRules",
+            "properties": {
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adfsLoadBalancerName')), '/backendAddressPools/ADFSLBBE')]"
+              },
+              "backendPort": 443,
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adfsLoadBalancerName')), '/frontendIpConfigurations/ADFSLBFE')]"
+              },
+              "frontendPort": 443,
+              "idleTimeoutInMinutes": 15,
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adfsLoadBalancerName')), '/probes/ADFSLBprobe')]"
+              },
+              "protocol": "Tcp"
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "ADFSLBprobe",
+            "properties": {
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2,
+              "port": 80,
+              "protocol": "Http",
+              "requestPath": "/adfs/probe"
+            }
+          }
+        ]
+      }
+    },    
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[resourceGroup().location]",
+      "tags": { "displayName": "adfsNICs" },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/',variables('adfsLoadBalancerName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adfsLoadBalancerName')), '/backendAddressPools/ADFSLBBE')]"
+                }
+              ],
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },  
+      {
+      "apiVersion": "[variables('apiVersionManagedDisks')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmFullName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmFullName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('windowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('OSDiskName')]",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+            }
+          ]
+        }
+      }
+    },
+     { 
+      "apiVersion": "2015-01-01", 
+      "name": "linkedTemplateDscPullServer", 
+      "type": "Microsoft.Resources/deployments", 
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmFullName'))]"
+      ],
+      "properties": { 
+        "mode": "incremental", 
+        "templateLink": {
+          "uri": "[variables('dscLinkedTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        }, 
+        "parameters": { 
+          "vmName":{
+            "value": "[variables('vmFullName')]"
+          },
+          "registrationKey":{
+            "value": "[variables('dscRegistrationKey')]"
+          },
+          "registrationUrl":{
+            "value": "[variables('dscRegistrationUrl')]"
+          },
+          "nodeConfigurationName":{
+            "value": "[variables('dscNodeConfigurationName')]"
+          } 
+        } 
+      } 
+    }    
+    ],
+    "outputs": {}
+}

@@ -7,6 +7,9 @@
     },
     "enableVaultForDeployment": {
       "value": "true"
+    },
+    "objectId": {
+      "value": "#{keyvaultAdminObjectId}#"
     }
   }
 }

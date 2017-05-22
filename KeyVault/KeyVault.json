@@ -9,13 +9,6 @@
                 "description": "KeyVault name"
             }
         },
-        "accessPolicies": {
-            "type": "array",
-            "defaultValue": "{}",
-            "metadata": {
-                "description": "Access policies object {\"tenantId\":\"\",\"objectId\":\"\",\"permissions\":{\"keys\":[\"\"],\"secrets\":[\"\"]}}"
-            }
-        },
         "enableVaultForDeployment": {
             "type": "bool",
             "defaultValue": false,
@@ -49,6 +42,12 @@
                 "description": "Specifies if the azure platform has access to the vault for enabling disk encryption scenarios."
             }
         },
+        "objectId": {
+            "type": "string",
+            "metadata": {
+                "description": "Object Id of the AD user. Get using Get-AzureADUser cmdlet"
+            }
+        },
         "vaultSku": {
             "type": "string",
             "defaultValue": "Standard",
@@ -76,8 +75,18 @@
                 "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
                 "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",
                 "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
-                "tenantId": "[subscription().tenantId]",
-                "accessPolicies": "[parameters('AccessPolicies')]",
+                "tenantId": "[subscription().tenantId]",                
+                "accessPolicies": [{
+					"tenantId": "[subscription().tenantId]",
+					"objectId": "[parameters('objectId')]",
+					"permissions": {
+						"secrets": [],
+						"keys": [],
+						"certificates": [
+							"Import"
+						]
+					}
+				}],
                 "sku": {
                     "name": "[parameters('vaultSku')]",
                     "family": "A"
