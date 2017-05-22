@@ -1,4 +1,4 @@
-Configuration DscConfDomainController
+Configuration DscConfADFSServer
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration, xDSCDomainjoin
     $dscDomainAdmin = Get-AutomationPSCredential -Name 'addcDomainAdmin'

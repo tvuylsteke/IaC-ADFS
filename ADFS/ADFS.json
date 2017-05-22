@@ -149,7 +149,8 @@
       "name": "[variables('nicName')]",
       "location": "[resourceGroup().location]",
       "tags": { "displayName": "adfsNICs" },
-      "dependsOn": [
+      "dependsOn": [        
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",      
         "[concat('Microsoft.Network/loadBalancers/',variables('adfsLoadBalancerName'))]"
       ],
       "properties": {
@@ -163,6 +164,9 @@
                 }
               ],
               "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pipName'))]"
+              },
               "subnet": {
                 "id": "[variables('subnetRef')]"
               }
