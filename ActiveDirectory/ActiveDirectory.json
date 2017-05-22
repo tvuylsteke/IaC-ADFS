@@ -118,8 +118,7 @@
       "name": "[variables('nicName')]",
       "location": "[resourceGroup().location]",
      "dependsOn": [
-      "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
-      "[concat('Microsoft.Network/virtualNetworks/', parameters('existingVirtualNetworkName'))]"
+      "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]"
     ],
       "properties": {
         "ipConfigurations": [
